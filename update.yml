@@ -1,0 +1,31 @@
+name: Watcher Auto Update
+on:
+  schedule:
+    - cron: '0 * * * *' # دقیقا هر ۱ ساعت
+  workflow_dispatch:
+
+jobs:
+  update-proxies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Scanner
+        run: python scanner.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "WatcherBot"
+          git config --global user.email "bot@watcher.me"
+          git add proxies.json
+          git commit -m "Update Proxies: $(date)" || exit 0
+          git push
